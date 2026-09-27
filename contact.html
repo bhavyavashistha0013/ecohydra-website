@@ -624,114 +624,126 @@
 
     <!-- CONTACT FORM SUBMISSION FIX -->
 
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    <<!-- CONTACT FORM SUBMISSION FIX -->
 
-        const form = document.getElementById("enquiryForm");
-        const submitBtn = document.getElementById("submitBtn");
-        const formMessage = document.getElementById("formMessage");
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
-        // Mobile navigation
-        const menuToggle = document.getElementById("menuToggle");
-        const navLinks = document.getElementById("navLinks");
+    const form = document.getElementById("enquiryForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const formMessage = document.getElementById("formMessage");
 
-        if (menuToggle && navLinks) {
-            menuToggle.addEventListener("click", function () {
-                const isOpen = navLinks.classList.toggle("active");
+    // Mobile navigation
+    const menuToggle = document.getElementById("menuToggle");
+    const navLinks = document.getElementById("navLinks");
 
-                menuToggle.setAttribute(
-                    "aria-expanded",
-                    String(isOpen)
-                );
+    if (menuToggle && navLinks) {
+        menuToggle.addEventListener("click", function () {
 
-                menuToggle.textContent = isOpen ? "✕" : "☰";
-            });
-        }
+            const isOpen = navLinks.classList.toggle("active");
 
-        if (!form || !submitBtn || !formMessage) {
-            console.error("Contact form elements are missing.");
+            menuToggle.setAttribute(
+                "aria-expanded",
+                String(isOpen)
+            );
+
+            menuToggle.textContent = isOpen ? "✕" : "☰";
+
+        });
+    }
+
+    if (!form || !submitBtn || !formMessage) {
+        console.error("Contact form elements are missing.");
+        return;
+    }
+
+    // Prevent normal browser form submission
+    form.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+        if (!form.checkValidity()) {
+            form.reportValidity();
             return;
         }
 
-        form.addEventListener("submit", async function (event) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Sending Enquiry...";
 
-            // Stop the browser from reloading the page
-            event.preventDefault();
+        formMessage.className = "form-message";
+        formMessage.style.display = "none";
+        formMessage.textContent = "";
 
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
 
-            submitBtn.disabled = true;
-            submitBtn.textContent = "Sending Enquiry...";
+        data._subject = "New Ecohydra Website Enquiry";
+        data._template = "table";
 
-            formMessage.className = "form-message";
-            formMessage.style.display = "none";
-            formMessage.textContent = "";
+        try {
 
-            const formData = new FormData(form);
+            const response = await fetch(
+                "https://formsubmit.co/ajax/ecohydraventures@gmail.com",
+                {
+                    method: "POST",
 
-            const data = Object.fromEntries(formData.entries());
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
 
-            data._subject = "New Ecohydra Website Enquiry";
-            data._template = "table";
-
-            try {
-
-                const response = await fetch(
-                    "https://formsubmit.co/ajax/ecohydraventures@gmail.com",
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Accept": "application/json"
-                        },
-                        body: JSON.stringify(data)
-                    }
-                );
-
-                const result = await response.json();
-
-                if (!response.ok || result.success !== "true") {
-                    throw new Error(
-                        result.message || "Form submission failed"
-                    );
+                    body: JSON.stringify(data)
                 }
+            );
 
-                form.reset();
+            const result = await response.json();
 
-                formMessage.className =
-                    "form-message success";
+            console.log("FormSubmit response:", result);
 
-                formMessage.textContent =
-                    "Thank you! Your enquiry has been submitted successfully. Our team will get in touch with you soon.";
-
-                formMessage.style.display = "block";
-
-            } catch (error) {
-
-                console.error("FormSubmit error:", error);
-
-                formMessage.className =
-                    "form-message error";
-
-                formMessage.textContent =
-                    "Sorry, your enquiry could not be sent. Please try again or email ecohydraventures@gmail.com directly.";
-
-                formMessage.style.display = "block";
-
-            } finally {
-
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Send Enquiry →";
-
+            // Accept both boolean true and string "true"
+            if (
+                !response.ok ||
+                !(
+                    result.success === true ||
+                    result.success === "true"
+                )
+            ) {
+                throw new Error(
+                    result.message || "Form submission failed"
+                );
             }
 
-        });
+            // Success
+            form.reset();
+
+            formMessage.className = "form-message success";
+
+            formMessage.textContent =
+                "Thank you! Your enquiry has been submitted successfully. Our team will get in touch with you soon.";
+
+            formMessage.style.display = "block";
+
+        } catch (error) {
+
+            console.error("FormSubmit error:", error);
+
+            formMessage.className = "form-message error";
+
+            formMessage.textContent =
+                "Sorry, your enquiry could not be sent. Please try again or email ecohydraventures@gmail.com directly.";
+
+            formMessage.style.display = "block";
+
+        } finally {
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Send Enquiry →";
+
+        }
 
     });
-    </script>
 
+});
+</script>
 </body>
 </html>
